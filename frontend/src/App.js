@@ -6,6 +6,11 @@ import { AuthProvider } from './contexts/AuthContext';
 import VideoMeetComponent from './pages/VideoMeet';
 import HomeComponent from './pages/home';
 import History from './pages/history';
+import { ThemeModeProvider } from './contexts/ThemeModeContext';
+import SiteNavbar from './components/SiteNavbar';
+import withAuth from './utils/withAuth';
+
+const ProtectedHistory = withAuth(History);
 
 function App() {
   return (
@@ -13,20 +18,22 @@ function App() {
 
       <Router>
 
-        <AuthProvider>
+        <ThemeModeProvider>
+          <AuthProvider>
+            <SiteNavbar />
 
+            <Routes>
 
-          <Routes>
+              <Route path='/' element={<LandingPage />} />
 
-            <Route path='/' element={<LandingPage />} />
+              <Route path='/auth' element={<Authentication />} />
 
-            <Route path='/auth' element={<Authentication />} />
-
-            <Route path='/home's element={<HomeComponent />} />
-            <Route path='/history' element={<History />} />
-            <Route path='/:url' element={<VideoMeetComponent />} />
-          </Routes>
-        </AuthProvider>
+              <Route path='/home' element={<HomeComponent />} />
+              <Route path='/history' element={<ProtectedHistory />} />
+              <Route path='/:url' element={<VideoMeetComponent />} />
+            </Routes>
+          </AuthProvider>
+        </ThemeModeProvider>
 
       </Router>
     </div>

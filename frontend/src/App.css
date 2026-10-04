@@ -1,96 +1,697 @@
 .landingPageContainer {
-  width: 100vw;
-  height: 100vh;
-  background: url("/public/background.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  color: white;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: calc(100vh - var(--site-navbar-height));
+  min-height: calc(100svh - var(--site-navbar-height));
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at 12% 8%, var(--page-glow-secondary), transparent 30rem),
+    radial-gradient(ellipse at 88% 70%, var(--page-glow-primary), transparent 36rem),
+    linear-gradient(135deg, #fbfbff 0%, #f2f3fa 54%, #f7f5fc 100%);
+  transition: color .35s ease, background .35s ease;
 }
 
-.landingPageContainer nav {
-  padding-inline: 1.2rem;
-  padding-block: 1.6rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-}
-
-.landingPageContainer nav h2 {
-  font-size: 1.8rem;
-  font-weight: 500;
-}
-
-.landingPageContainer nav .navlist {
-  display: flex;
-  gap: 1.6rem;
-  cursor: pointer;
-
+.landingPageContainer::after {
+  position: absolute;
+  z-index: -1;
+  right: -12rem;
+  bottom: -22rem;
+  width: 48rem;
+  height: 48rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 17%, transparent);
+  border-radius: 50%;
+  content: "";
+  box-shadow:
+    0 0 0 3rem color-mix(in srgb, var(--gold) 4%, transparent),
+    0 0 0 6rem color-mix(in srgb, var(--gold) 3%, transparent);
+  pointer-events: none;
 }
 
 .landingMainContainer {
+  width: min(1200px, 100%);
+  margin-inline: auto;
+}
+
+.pageBackButton {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  color: var(--ink) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 5px 16px rgba(20, 24, 45, .08);
+  transition: transform .18s ease, background-color .18s ease, box-shadow .18s ease !important;
+}
+
+.pageBackButton:hover {
+  background: color-mix(in srgb, var(--gold) 10%, var(--surface)) !important;
+  box-shadow: var(--shadow-soft);
+  transform: translateX(-2px);
+}
+
+.landingMainContainer {
+  position: relative;
+  min-height: calc(100vh - var(--site-navbar-height));
+  min-height: calc(100svh - var(--site-navbar-height));
+  padding: 2rem clamp(2rem, 7vw, 6rem) 4rem;
   display: flex;
   justify-content: space-between;
-  padding-inline: 3rem;
-  height: 80vh;
   align-items: center;
+  gap: 3rem;
 }
 
-.landingMainContainer>div:nth-child(1) {
-  font-size: 2.2rem;
+.landingMainContainer > div:first-child {
+  max-width: 640px;
 }
 
-.landingMainContainer>div:nth-child(1) div[role='button'] {
-  background: #D97500;
+.landingMainContainer h1 {
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  font-size: clamp(3rem, 6vw, 5.35rem);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -.055em;
+}
+
+.landingMainContainer h1 .heroAccent {
+  color: var(--gold);
+}
+
+.landingMainContainer p {
+  max-width: 430px;
+  margin-top: 1.5rem;
+  color: var(--ink-soft);
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: 1.75;
+}
+
+.landingCta {
+  display: flex;
   width: fit-content;
-  padding: 1rem;
-  border-radius: 20px;
-  margin-top: 1.9rem;
-}
-
-.landingMainContainer>div:nth-child(1) div[role='button'] a {
+  margin-top: 2rem;
+  justify-content: center;
+  align-items: center;
+  min-width: 148px;
+  min-height: 54px;
+  padding: .95rem 1.7rem;
+  border: 1px solid rgba(255, 255, 255, .72);
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #6c78d9, #4b58bd);
+  box-shadow: 0 14px 32px rgba(76, 88, 189, .25);
   text-decoration: none;
-  color: white;
-  font-size: 1.7rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  transition: transform .2s ease, background .25s ease, box-shadow .25s ease;
 }
 
-.landingMainContainer>div:nth-child(2) img {
-  height: 70vh;
-  width: auto;
+.landingCta:hover {
+  background: linear-gradient(135deg, #7f8ae6, #5967cd);
+  box-shadow: 0 16px 38px rgba(76, 88, 189, .3);
+  transform: translateY(-2px);
 }
 
-.navBar {
+.landingCta:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+.landingMainContainer > div:nth-child(2) img {
+  display: block;
+  width: min(38vw, 430px);
+  max-height: 70svh;
+  object-fit: contain;
+  filter: drop-shadow(0 28px 48px rgba(50, 55, 104, .2));
+  animation: premium-float 7s ease-in-out infinite;
+  transition: filter .35s ease;
+}
+
+@keyframes premium-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.meetContainer {
+  position: relative;
+  overflow: hidden;
+  width: min(1180px, 100%);
+  min-height: calc(100vh - 76px);
+  min-height: calc(100svh - 76px);
+  margin-inline: auto;
+  padding: clamp(1.5rem, 5vw, 4rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-inline: 20px;
-  text-align: center;
-
-}
-.meetContainer {
-  display: flex;
-  padding-inline: 20px;
-  height: 80vh;
-  gap: 10vw;
-  justify-content: center;
+  gap: clamp(2rem, 6vw, 5rem);
+  background:
+    radial-gradient(ellipse at 4% 8%, var(--page-glow-primary), transparent 32rem),
+    radial-gradient(ellipse at 92% 88%, var(--page-glow-secondary), transparent 36rem),
+    var(--paper);
+  transition: background .35s ease;
 }
 
-
+.meetContainer::before {
+  position: absolute;
+  top: 12%;
+  right: -15%;
+  width: min(50vw, 580px);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--gold) 15%, transparent);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
 
 .leftPanel {
-  height: 100%;
+  position: relative;
+  z-index: 1;
+  flex: 1 1 520px;
+  min-width: 0;
   display: flex;
   align-items: center;
+}
 
+.leftPanel h2 {
+  max-width: 580px;
+  margin-bottom: .9rem;
+  color: var(--ink);
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  font-size: clamp(2.3rem, 4.5vw, 3.7rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -.045em;
+}
+
+.meetingIntro {
+  max-width: 470px;
+  margin-bottom: 1.6rem;
+  color: var(--ink-soft);
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+
+.leftPanel h2::before {
+  display: block;
+  width: 2.6rem;
+  height: 3px;
+  margin-bottom: 1.5rem;
+  border-radius: 3px;
+  background: var(--gold);
+  content: "";
+}
+
+.sectionEyebrow {
+  margin-bottom: 1rem;
+  color: var(--gold);
+  font-size: .73rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.meetingActions {
+  width: min(100%, 540px);
+}
+
+.meetingActions .startMeetingButton {
+  width: 100%;
+  min-height: 58px;
+  justify-content: center;
+  border-radius: 13px !important;
+  background: linear-gradient(120deg, var(--forest), var(--forest-deep)) !important;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--forest) 25%, transparent) !important;
+  font-size: .98rem !important;
+}
+
+.meetingActions .startMeetingButton:hover {
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--forest) 32%, transparent) !important;
+}
+
+.joinMeetingHeading {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin: 1.35rem 0 .85rem;
+  color: var(--ink-soft);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  white-space: nowrap;
+}
+
+.joinMeetingHeading span:first-child,
+.joinMeetingHeading span:last-child {
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+
+.leftPanel .sectionEyebrow::before {
+  display: none;
+}
+
+.meetingCodeForm {
+  display: flex;
+  align-items: flex-start;
+  gap: .7rem;
+  max-width: 540px;
+  padding: .55rem;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.meetingCodeForm .MuiTextField-root {
+  flex: 1;
+}
+
+.meetingCodeForm .MuiTextField-root .MuiOutlinedInput-root {
+  background: transparent;
+}
+
+.meetingCodeForm .MuiTextField-root .MuiOutlinedInput-notchedOutline {
+  border-color: transparent;
+}
+
+.meetingCodeForm .MuiTextField-root .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline,
+.meetingCodeForm .MuiTextField-root .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--gold);
+}
+
+.meetingCodeForm .MuiButton-root {
+  min-height: 54px;
+  padding-inline: 1.7rem;
+  border-radius: 11px;
+  background: var(--forest);
+  font-weight: 700;
 }
 
 .rightPanel {
+  position: relative;
+  z-index: 1;
+  flex: 0 1 400px;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
 .rightPanel > img {
-  width: 30vw;
+  display: block;
+  width: min(100%, 370px);
   height: auto;
-  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, .72);
+  border-radius: 30px;
+  box-shadow: 0 30px 70px rgba(37, 43, 81, .16);
+  transform: rotate(1deg);
+  transition: transform .4s ease, box-shadow .4s ease;
+}
+
+.rightPanel > img:hover {
+  box-shadow: 0 38px 80px rgba(37, 43, 81, .2);
+  transform: rotate(0) translateY(-5px);
+}
+
+.historyPage {
+  min-height: calc(100vh - var(--site-navbar-height));
+  min-height: calc(100svh - var(--site-navbar-height));
+  padding: clamp(1rem, 4vw, 2.5rem);
+  background:
+    radial-gradient(ellipse at 85% 0%, var(--page-glow-primary), transparent 34rem),
+    radial-gradient(ellipse at 8% 100%, var(--page-glow-secondary), transparent 32rem),
+    var(--paper);
+  transition: background .35s ease;
+}
+
+.historyHeader {
+  width: min(900px, 100%);
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.historyHeader h1 {
+  color: var(--ink);
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  font-size: clamp(1.7rem, 4vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: -.035em;
+}
+
+.historyHeader .MuiIconButton-root {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgba(37, 43, 81, .08);
+  color: var(--ink);
+}
+
+.historyList {
+  width: min(900px, 100%);
+  margin-inline: auto;
+  display: grid;
+  gap: .85rem;
+}
+
+.historyEmpty {
+  padding: 3rem 1.25rem;
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+  color: var(--ink-soft);
+  text-align: center;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
+.historyCard {
+  border-color: var(--line) !important;
+  border-radius: 15px !important;
+  background: color-mix(in srgb, var(--surface) 94%, transparent) !important;
+  box-shadow: 0 8px 24px rgba(37, 43, 81, .06) !important;
+  transition: transform .2s ease, box-shadow .2s ease !important;
+}
+
+.historyCard:hover {
+  box-shadow: var(--shadow-soft) !important;
+  transform: translateY(-2px);
+}
+
+.authPage {
+  min-height: calc(100vh - var(--site-navbar-height));
+  min-height: calc(100svh - var(--site-navbar-height));
+  background:
+    radial-gradient(ellipse at 100% 0%, var(--page-glow-secondary), transparent 34rem),
+    radial-gradient(ellipse at 18% 100%, var(--page-glow-primary), transparent 38rem),
+    var(--paper);
+  transition: background .35s ease;
+}
+
+.authVisualPanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  min-height: 100%;
+  padding: clamp(2rem, 6vw, 5rem);
+  color: #fff;
+  background:
+    linear-gradient(180deg, rgba(24, 24, 24, .12), rgba(24, 24, 24, .94)),
+    url("../public/background.png") center / cover no-repeat;
+}
+
+.authVisualPanel::before {
+  display: none;
+}
+
+.authVisualPanel h1 {
+  max-width: 540px;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  font-size: clamp(2.6rem, 5vw, 4.8rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -.05em;
+}
+
+.authVisualPanel p {
+  max-width: 430px;
+  margin-top: 1rem;
+  color: rgba(255, 255, 255, .74);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.authFormPanel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 4rem clamp(1.25rem, 4vw, 4rem);
+  border-radius: 0 !important;
+  background: var(--paper) !important;
+}
+
+.authFormContent {
+  width: min(calc(100% - 3rem), 440px);
+  margin: auto !important;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.authFormPanel .authBackButton {
+  position: fixed;
+  z-index: 3;
+  top: calc(var(--site-navbar-height) + 1.25rem);
+  left: 1.25rem;
+}
+
+.authFormContent .MuiAvatar-root {
+  width: 58px;
+  height: 58px;
+  margin-bottom: 1rem;
+  color: #fff;
+  background: var(--forest) !important;
+  box-shadow: 0 10px 24px rgba(65, 76, 160, .2);
+}
+
+.authWelcome {
+  margin-bottom: .4rem !important;
+  color: var(--ink);
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif !important;
+  font-size: 2rem !important;
+  font-weight: 500 !important;
+  letter-spacing: -.04em !important;
+}
+
+.authSubheading {
+  margin-bottom: 1.5rem !important;
+  color: var(--ink-soft);
+  font-size: .95rem !important;
+}
+
+.authModeSwitch {
+  display: flex;
+  width: 100%;
+  padding: .3rem;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--line) 70%, var(--paper));
+}
+
+.authModeSwitch .MuiButton-root {
+  flex: 1;
+  min-height: 46px;
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+.authModeSwitch .MuiButton-root:hover {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.authModeSwitch .MuiButton-root.active {
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: 0 3px 10px rgba(37, 43, 81, .1);
+}
+
+.authModeSwitch .MuiButton-root.active:hover {
+  background: var(--surface);
+}
+
+.authFormContent .MuiTextField-root {
+  margin-block: .55rem;
+}
+
+.authFormContent .MuiTextField-root .MuiOutlinedInput-root {
+  min-height: 54px;
+}
+
+.authInputAdornment {
+  color: var(--ink-soft);
+}
+
+.passwordVisibilityButton {
+  margin-right: -.35rem !important;
+  color: var(--ink-soft) !important;
+}
+
+.authSubmitButton {
+  min-height: 54px !important;
+  margin-top: 1rem !important;
+  border-radius: 12px !important;
+  background: var(--forest) !important;
+}
+
+.authError {
+  margin-top: .5rem;
+  color: #b04438;
+  font-size: .9rem;
+}
+
+@media (max-width: 700px) {
+  .authVisualPanel {
+    display: none;
+  }
+
+  .authFormPanel {
+    display: grid;
+    place-items: center;
+    min-height: calc(100svh - var(--site-navbar-height));
+    padding-block: 1rem;
+  }
+
+  .authFormContent {
+    width: min(calc(100% - 2rem), 440px);
+    padding: clamp(1.5rem, 7vw, 2.5rem);
+  }
+}
+
+@media (max-width: 700px) {
+  .landingMainContainer {
+    padding: 2rem 1.5rem 3rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .landingMainContainer h1 {
+    font-size: clamp(2.7rem, 11vw, 4rem);
+  }
+
+  .landingMainContainer > div:nth-child(2) {
+    align-self: center;
+  }
+
+  .landingMainContainer > div:nth-child(2) img {
+    width: min(72vw, 300px);
+    max-height: 38svh;
+  }
+
+  .meetContainer {
+    padding: 2rem 1.25rem 2.5rem;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .leftPanel {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .leftPanel h2 {
+    margin-bottom: 1.25rem;
+    font-size: clamp(2rem, 8vw, 2.7rem);
+  }
+
+  .meetingCodeForm {
+    gap: .5rem;
+  }
+
+  .meetingCodeForm .MuiButton-root {
+    padding-inline: 1rem;
+  }
+
+  .rightPanel {
+    flex: 0 1 auto;
+  }
+
+  .rightPanel > img {
+    width: min(65vw, 240px);
+  }
+}
+
+:root[data-theme='dark'] .landingPageContainer {
+  background:
+    radial-gradient(ellipse at 10% 4%, rgba(230, 230, 230, .12), transparent 31rem),
+    radial-gradient(ellipse at 87% 73%, rgba(145, 145, 145, .16), transparent 36rem),
+    linear-gradient(135deg, #292929 0%, #1c1c1c 52%, #303030 100%);
+}
+
+:root[data-theme='dark'] .landingPageContainer::after {
+  border-color: rgba(225, 225, 225, .17);
+  box-shadow: 0 0 0 3rem rgba(225, 225, 225, .035), 0 0 0 6rem rgba(225, 225, 225, .025);
+}
+
+:root[data-theme='dark'] .landingPageContainer {
+  color: #f1f1f1;
+}
+
+:root[data-theme='dark'] .landingMainContainer h1 .heroAccent {
+  color: #ededed;
+}
+
+:root[data-theme='dark'] .landingMainContainer p {
+  color: rgba(245, 245, 245, .72);
+}
+
+:root[data-theme='dark'] .landingCta {
+  border-color: rgba(255, 255, 255, .28);
+  color: #202020;
+  background: linear-gradient(135deg, #eeeeee, #b5b5b5);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .26);
+}
+
+:root[data-theme='dark'] .landingCta:hover {
+  background: linear-gradient(135deg, #fff, #d1d1d1);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, .34);
+}
+
+:root[data-theme='dark'] .landingMainContainer > div:nth-child(2) img {
+  filter: drop-shadow(0 30px 52px rgba(0, 0, 0, .48));
+}
+
+:root[data-theme='dark'] .meetContainer::before {
+  border-color: rgba(220, 220, 220, .14);
+}
+
+:root[data-theme='dark'] .historyPage {
+  background:
+    radial-gradient(ellipse at 85% 0%, rgba(180, 180, 180, .1), transparent 34rem),
+    var(--paper);
+}
+
+:root[data-theme='dark'] .historyEmpty {
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+:root[data-theme='dark'] .historyCard {
+  background: var(--surface) !important;
+}
+
+:root[data-theme='dark'] .historyHeader .MuiIconButton-root {
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+:root[data-theme='dark'] .historyPage .MuiTypography-colorTextSecondary {
+  color: var(--ink-soft);
+}
+
+:root[data-theme='dark'] .historyPage .MuiTypography-colorTextPrimary {
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .authFormPanel {
+  background: var(--paper) !important;
+}
+
+:root[data-theme='dark'] .authVisualPanel {
+  background:
+    radial-gradient(ellipse at 10% 8%, rgba(210, 210, 210, .12), transparent 31rem),
+    linear-gradient(145deg, #333, #202020 72%);
+}
+
+:root[data-theme='dark'] .authModeSwitch .MuiButton-root {
+  color: var(--ink-soft);
+}
+
+:root[data-theme='dark'] .authModeSwitch .MuiButton-root.active {
+  color: var(--ink);
 }

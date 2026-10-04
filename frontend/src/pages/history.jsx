@@ -1,88 +1,85 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom';
 import Card from '@mui/material/Card';
-import Box from '@mui/material/Box';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import HomeIcon from '@mui/icons-material/Home';
-
-import { IconButton } from '@mui/material';
+import { Alert, Button } from '@mui/material';
+import BackButton from '../components/BackButton';
 export default function History() {
 
 
     const { getHistoryOfUser } = useContext(AuthContext);
 
     const [meetings, setMeetings] = useState([])
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-
-    const routeTo = useNavigate();
+    const fetchHistory = useCallback(async () => {
+        setLoading(true);
+        setError("");
+        try {
+            const history = await getHistoryOfUser();
+            if (!Array.isArray(history)) {
+                throw new Error("Unexpected meeting history response.");
+            }
+            setMeetings(history);
+        } catch {
+            setError("Unable to load your meeting history. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }, [getHistoryOfUser]);
 
     useEffect(() => {
-        const fetchHistory = async () => {
-            try {
-                const history = await getHistoryOfUser();
-                setMeetings(history);
-            } catch {
-                // IMPLEMENT SNACKBAR
-            }
-        }
-
         fetchHistory();
-    }, [])
+    }, [fetchHistory]);
 
-    let formatDate = (dateString) => {
-
+    const formatDate = (dateString) => {
         const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) return "Date unavailable";
         const day = date.getDate().toString().padStart(2, "0");
-        const month = (date.getMonth() + 1).toString().padStart(2, "0")
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
         const year = date.getFullYear();
-
-        return `${day}/${month}/${year}`
-
+        return `${day}/${month}/${year}`;
     }
 
     return (
-        <div>
-
-            <IconButton onClick={() => {
-                routeTo("/home")
-            }}>
-                <HomeIcon />
-            </IconButton >
-            {
-                (meetings.length !== 0) ? meetings.map((e, i) => {
+        <main className="historyPage">
+            <header className="historyHeader">
+                <BackButton fallback="/home" />
+                <h1>Meeting history</h1>
+            </header>
+            <section className="historyList" aria-live="polite">
+                {error && (
+                    <Alert
+                        severity="error"
+                        action={<Button color="inherit" size="small" onClick={fetchHistory}>Retry</Button>}
+                    >
+                        {error}
+                    </Alert>
+                )}
+                {loading ? (
+                    <Typography color="text.secondary" align="center">Loading your meetings...</Typography>
+                ) : meetings.length > 0 ? meetings.map((e, i) => {
                     return (
-
-                        <>
-
-
-                            <Card key={i} variant="outlined">
-
-
-                                <CardContent>
-                                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                                        Code: {e.meetingCode}
-                                    </Typography>
-
-                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                                        Date: {formatDate(e.date)}
-                                    </Typography>
-
-                                </CardContent>
-
-
-                            </Card>
-
-
-                        </>
+                        <Card className="historyCard" key={`${e.meetingCode}-${e.date || i}`} variant="outlined">
+                            <CardContent>
+                                <Typography variant="subtitle1" fontWeight={700} color="text.primary">
+                                    Meeting code: {e.meetingCode}
+                                </Typography>
+                                <Typography color="text.secondary">
+                                    {formatDate(e.date)}
+                                </Typography>
+                            </CardContent>
+                        </Card>
                     )
-                }) : <></>
-
-            }
-
-        </div>
+                }) : !error && (
+                    <div className="historyEmpty">
+                        <Typography variant="h6" gutterBottom>No meetings yet</Typography>
+                        <Typography color="text.secondary">Your recent meeting codes will appear here.</Typography>
+                    </div>
+                )}
+            </section>
+        </main>
     )
 }

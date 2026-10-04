@@ -2,73 +2,100 @@ import React, { useContext, useState } from 'react'
 import withAuth from '../utils/withAuth'
 import { useNavigate } from 'react-router-dom'
 import "../App.css";
-import { Button, IconButton, TextField } from '@mui/material';
-import RestoreIcon from '@mui/icons-material/Restore';
+import { Button, TextField } from '@mui/material';
 import { AuthContext } from '../contexts/AuthContext';
+import VideoCallRoundedIcon from '@mui/icons-material/VideoCallRounded';
+import MeetingRoomRoundedIcon from '@mui/icons-material/MeetingRoomRounded';
 
 function HomeComponent() {
 
-
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     const [meetingCode, setMeetingCode] = useState("");
+    const [error, setError] = useState("");
+    const [isCreatingMeeting, setIsCreatingMeeting] = useState(false);
 
+    const { addToUserHistory } = useContext(AuthContext);
+    const handleJoinVideoCall = async (event) => {
+        event.preventDefault();
+        const code = meetingCode.trim();
+        if (!code) {
+            setError("Please enter a meeting code.");
+            return;
+        }
 
-    const {addToUserHistory} = useContext(AuthContext);
-    let handleJoinVideoCall = async () => {
-        await addToUserHistory(meetingCode)
-        navigate(`/${meetingCode}`)
+        setError("");
+        try {
+            await addToUserHistory(code);
+            navigate(`/${encodeURIComponent(code)}`);
+        } catch {
+            setError("Unable to join the meeting. Please check your connection and try again.");
+        }
     }
 
+    const handleStartMeeting = async () => {
+        setError("");
+        setIsCreatingMeeting(true);
+        const meetingId = window.crypto?.randomUUID?.()
+            || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
+        try {
+            await addToUserHistory(meetingId);
+            navigate(`/${encodeURIComponent(meetingId)}`);
+        } catch {
+            setError("Unable to start the meeting. Please check your connection and try again.");
+        } finally {
+            setIsCreatingMeeting(false);
+        }
+    };
+
     return (
-        <>
-
-            <div className="navBar">
-
-                <div style={{ display: "flex", alignItems: "center" }}>
-
-                    <h2>Apna Video Call</h2>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <IconButton onClick={
-                        () => {
-                            navigate("/history")
-                        }
-                    }>
-                        <RestoreIcon />
-                    </IconButton>
-                    <p>History</p>
-
-                    <Button onClick={() => {
-                        localStorage.removeItem("token")
-                        navigate("/auth")
-                    }}>
-                        Logout
-                    </Button>
-                </div>
-
-
-            </div>
-
-
-            <div className="meetContainer">
+        <div className="meetContainer">
                 <div className="leftPanel">
                     <div>
-                        <h2>Providing Quality Video Call Just Like Quality Education</h2>
+                        <p className="sectionEyebrow">YOUR SPACE TO CONNECT</p>
+                        <h2>Make room for a great conversation.</h2>
+                        <p className="meetingIntro">Start a private meeting in one click, or join someone with their meeting code.</p>
 
-                        <div style={{ display: 'flex', gap: "10px" }}>
+                        <div className="meetingActions">
+                            <Button
+                                className="startMeetingButton"
+                                variant="contained"
+                                startIcon={<VideoCallRoundedIcon />}
+                                onClick={handleStartMeeting}
+                                disabled={isCreatingMeeting}
+                            >
+                                {isCreatingMeeting ? "Creating your meeting..." : "Start a new meeting"}
+                            </Button>
+                            <div className="joinMeetingHeading">
+                                <span />
+                                <span>OR JOIN WITH A CODE</span>
+                                <span />
+                            </div>
 
-                            <TextField onChange={e => setMeetingCode(e.target.value)} id="outlined-basic" label="Meeting Code" variant="outlined" />
-                            <Button onClick={handleJoinVideoCall} variant='contained'>Join</Button>
-
+                            <form className="meetingCodeForm" onSubmit={handleJoinVideoCall}>
+                                <TextField
+                                    onChange={e => {
+                                        setMeetingCode(e.target.value);
+                                        if (error) setError("");
+                                    }}
+                                    value={meetingCode}
+                                    id="meeting-code"
+                                    label="Meeting Code"
+                                    variant="outlined"
+                                    error={Boolean(error)}
+                                    helperText={error || "Enter a code shared by your host."}
+                                    FormHelperTextProps={{ role: error ? "alert" : undefined }}
+                                    inputProps={{ "aria-label": "Meeting Code" }}
+                                />
+                                <Button type="submit" variant="contained" startIcon={<MeetingRoomRoundedIcon />}>Join</Button>
+                            </form>
                         </div>
                     </div>
                 </div>
                 <div className='rightPanel'>
-                    <img srcSet='/logo3.png' alt="" />
+                    <img src="/logo3.png" alt="A preview of a video meeting" />
                 </div>
-            </div>
-        </>
+        </div>
     )
 }
 

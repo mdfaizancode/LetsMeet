@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 jest.mock('./contexts/AuthContext', () => {
   const React = jest.requireActual('react');
@@ -58,6 +58,63 @@ test('starts a fresh meeting directly from the dashboard', async () => {
 
   expect(await screen.findByRole('heading', { name: /join your meeting/i })).toBeInTheDocument();
   expect(window.location.pathname).toMatch(/^\/[a-z0-9-]+$/i);
+});
+
+test('requests camera and microphone only after the visitor enables them', async () => {
+  const tracks = [
+    { kind: 'video', enabled: true, stop: jest.fn() },
+    { kind: 'audio', enabled: true, stop: jest.fn() }
+  ];
+  const mediaStream = {
+    getTracks: () => tracks,
+    getVideoTracks: () => [tracks[0]],
+    getAudioTracks: () => [tracks[1]]
+  };
+  const getUserMedia = jest.fn().mockResolvedValue(mediaStream);
+  const originalMediaDevices = Object.getOwnPropertyDescriptor(navigator, 'mediaDevices');
+  const OriginalMediaStream = global.MediaStream;
+  global.MediaStream = class {
+    constructor(streamTracks) {
+      this.tracks = streamTracks;
+    }
+
+    getTracks() {
+      return this.tracks;
+    }
+
+    getVideoTracks() {
+      return this.tracks.filter(track => track.kind === 'video');
+    }
+
+    getAudioTracks() {
+      return this.tracks.filter(track => track.kind === 'audio');
+    }
+  };
+  Object.defineProperty(navigator, 'mediaDevices', {
+    configurable: true,
+    value: { getUserMedia, getDisplayMedia: jest.fn() }
+  });
+  Object.defineProperty(window, 'isSecureContext', { configurable: true, value: true });
+  window.history.pushState({}, '', '/meeting-room');
+
+  try {
+    render(<App />);
+
+    expect(getUserMedia).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: /enable camera and microphone/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/camera and microphone ready/i)).toBeInTheDocument();
+    });
+    expect(getUserMedia).toHaveBeenCalledWith({ video: true, audio: true });
+  } finally {
+    if (originalMediaDevices) {
+      Object.defineProperty(navigator, 'mediaDevices', originalMediaDevices);
+    } else {
+      delete navigator.mediaDevices;
+    }
+    global.MediaStream = OriginalMediaStream;
+  }
 });
 
 test('opens in dark mode and lets visitors switch to light mode', () => {

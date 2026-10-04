@@ -225,6 +225,19 @@
     line-height: 1.5;
 }
 
+.mediaAccessButton:global(.MuiButton-root) {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 1.25rem;
+    border-color: var(--line);
+    color: var(--lobby-ink);
+}
+
+.mediaAccessButton:global(.MuiButton-root:hover) {
+    border-color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 8%, transparent);
+}
+
 .lobbyForm {
     display: grid;
     gap: 1rem;

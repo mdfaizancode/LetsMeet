@@ -44,6 +44,7 @@ export default function VideoMeetComponent() {
 
     let [screenAvailable, setScreenAvailable] = useState(false);
     let [mediaError, setMediaError] = useState("");
+    let [requestingMedia, setRequestingMedia] = useState(false);
 
     let [messages, setMessages] = useState([])
 
@@ -60,11 +61,41 @@ export default function VideoMeetComponent() {
     let [videos, setVideos] = useState([])
     const navigate = useNavigate();
 
-    useEffect(() => {
-        let isMounted = true;
-        const getPermissions = async () => {
-            let cameraStream;
-            let microphoneStream;
+    useEffect(() => () => {
+        socketRef.current?.disconnect();
+        Object.values(connections).forEach(connection => {
+            if (connection.signalingState !== "closed") connection.close();
+        });
+        Object.keys(connections).forEach(peerId => delete connections[peerId]);
+        window.localStream?.getTracks().forEach(track => track.stop());
+        window.localStream = null;
+    }, [connections]);
+
+    const enableMedia = async () => {
+        setMediaError("");
+        setRequestingMedia(true);
+
+        if (!window.isSecureContext) {
+            setMediaError("Camera and microphone require a secure HTTPS connection. Open the deployed site using its https:// address.");
+            setRequestingMedia(false);
+            return;
+        }
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+            setMediaError("This browser does not support camera and microphone access. Try an up-to-date browser.");
+            setRequestingMedia(false);
+            return;
+        }
+
+        let cameraStream = null;
+        let microphoneStream = null;
+        let combinedStream = null;
+
+        try {
+            combinedStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            cameraStream = combinedStream;
+            microphoneStream = combinedStream;
+        } catch {
             try {
                 cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
             } catch {
@@ -75,52 +106,37 @@ export default function VideoMeetComponent() {
             } catch {
                 microphoneStream = null;
             }
+        }
 
-            if (!isMounted) {
-                cameraStream?.getTracks().forEach(track => track.stop());
-                microphoneStream?.getTracks().forEach(track => track.stop());
-                return;
-            }
+        const videoTracks = cameraStream?.getVideoTracks() ?? [];
+        const audioTracks = microphoneStream?.getAudioTracks() ?? [];
+        const hasVideo = videoTracks.length > 0;
+        const hasAudio = audioTracks.length > 0;
 
-            const videoTracks = cameraStream?.getVideoTracks() ?? [];
-            const audioTracks = microphoneStream?.getAudioTracks() ?? [];
-            const hasVideo = videoTracks.length > 0;
-            const hasAudio = audioTracks.length > 0;
-            setVideoAvailable(hasVideo);
-            setAudioAvailable(hasAudio);
-            setVideo(hasVideo);
-            setAudio(hasAudio);
-            setScreenAvailable(Boolean(navigator.mediaDevices?.getDisplayMedia));
+        setVideoAvailable(hasVideo);
+        setAudioAvailable(hasAudio);
+        setVideo(hasVideo);
+        setAudio(hasAudio);
+        setScreenAvailable(Boolean(navigator.mediaDevices.getDisplayMedia));
 
-            if (hasVideo || hasAudio) {
-                const stream = new MediaStream([...videoTracks, ...audioTracks]);
-                window.localStream = stream;
-                if (localVideoref.current) localVideoref.current.srcObject = stream;
-                setMediaError(
-                    !hasVideo || !hasAudio
-                        ? "Camera or microphone access was not granted. You can still join with available devices."
-                        : ""
-                );
-            } else {
-                setMediaError("Camera or microphone access is unavailable. You can still join without them.");
-            }
-        };
+        if (hasVideo || hasAudio) {
+            const stream = new MediaStream([...new Set([...videoTracks, ...audioTracks])]);
+            window.localStream?.getTracks().forEach(track => {
+                if (!stream.getTracks().includes(track)) track.stop();
+            });
+            window.localStream = stream;
+            if (localVideoref.current) localVideoref.current.srcObject = stream;
+            setMediaError(
+                hasVideo && hasAudio
+                    ? ""
+                    : `Your ${hasVideo ? "microphone" : "camera"} is unavailable. Check browser permissions or device settings.`
+            );
+        } else {
+            setMediaError("Camera and microphone access was blocked. Allow access in your browser's site settings, then try again. You can still join without them.");
+        }
 
-        getPermissions();
-        return () => {
-            isMounted = false;
-        };
-    }, [connections]);
-
-    useEffect(() => () => {
-        socketRef.current?.disconnect();
-        Object.values(connections).forEach(connection => {
-            if (connection.signalingState !== "closed") connection.close();
-        });
-        Object.keys(connections).forEach(peerId => delete connections[peerId]);
-        window.localStream?.getTracks().forEach(track => track.stop());
-        window.localStream = null;
-    }, [connections]);
+        setRequestingMedia(false);
+    };
 
     const sendPeerOffer = (peerId) => {
         const connection = connections[peerId];
@@ -258,7 +274,7 @@ export default function VideoMeetComponent() {
 
 
     let connectToSocketServer = () => {
-        socketRef.current = io.connect(server_url, { secure: false })
+        socketRef.current = io(server_url)
 
         socketRef.current.on('signal', gotMessageFromServer)
 
@@ -446,6 +462,19 @@ export default function VideoMeetComponent() {
                             <h1>Join your meeting</h1>
                             <p>Choose the name other participants will see.</p>
                             {mediaError && <p className={styles.mediaError} role="status">{mediaError}</p>}
+                            <Button
+                                className={styles.mediaAccessButton}
+                                variant="outlined"
+                                onClick={enableMedia}
+                                disabled={requestingMedia}
+                                aria-label="Enable camera and microphone"
+                            >
+                                {requestingMedia
+                                    ? "Requesting device access..."
+                                    : videoAvailable && audioAvailable
+                                        ? "Camera and microphone ready"
+                                        : "Enable camera and microphone"}
+                            </Button>
                             <form
                                 className={styles.lobbyForm}
                                 onSubmit={event => {
@@ -471,7 +500,7 @@ export default function VideoMeetComponent() {
                         </div>
                         <div className={styles.lobbyPreview}>
                             <video ref={localVideoref} autoPlay muted playsInline />
-                            <span>Camera preview</span>
+                            <span>{videoAvailable ? "Camera preview" : "Enable camera for preview"}</span>
                         </div>
                     </section>
                 </div> :

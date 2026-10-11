@@ -58,6 +58,8 @@ test('starts a fresh meeting directly from the dashboard', async () => {
 
   expect(await screen.findByRole('heading', { name: /join your meeting/i })).toBeInTheDocument();
   expect(window.location.pathname).toMatch(/^\/[a-z0-9-]+$/i);
+  expect(screen.getByLabelText('Meeting code')).toHaveTextContent(decodeURIComponent(window.location.pathname.slice(1)));
+  expect(screen.getByRole('button', { name: /copy meeting code/i })).toBeInTheDocument();
 });
 
 test('requests camera and microphone only after the visitor enables them', async () => {

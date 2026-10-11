@@ -216,6 +216,52 @@
     color: var(--lobby-muted);
 }
 
+.meetingCodePanel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding: .85rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--lobby-surface) 88%, var(--gold));
+}
+
+.meetingCodePanel > div {
+    min-width: 0;
+}
+
+.meetingCodeLabel {
+    display: block;
+    margin-bottom: .35rem;
+    color: var(--lobby-muted);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.meetingCodePanel code {
+    display: block;
+    overflow-wrap: anywhere;
+    color: var(--lobby-ink);
+    font-size: .88rem;
+    user-select: all;
+}
+
+.copyMeetingCodeButton:global(.MuiButton-root) {
+    flex: 0 0 auto;
+    min-height: 42px;
+    border-color: var(--line);
+    color: var(--lobby-ink);
+}
+
+.meetingCodeHint {
+    min-height: 1.5em;
+    font-size: .84rem;
+    line-height: 1.5;
+}
+
 .mediaError {
     padding: .75rem 1rem;
     border: 1px solid color-mix(in srgb, #c34f45 28%, transparent);

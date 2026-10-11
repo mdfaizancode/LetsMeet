@@ -66,6 +66,7 @@ function HomeComponent() {
                             >
                                 {isCreatingMeeting ? "Creating your meeting..." : "Start a new meeting"}
                             </Button>
+                            <p className="createMeetingHint">This creates a unique meeting code. Copy it from the next screen to invite others.</p>
                             <div className="joinMeetingHeading">
                                 <span />
                                 <span>OR JOIN WITH A CODE</span>

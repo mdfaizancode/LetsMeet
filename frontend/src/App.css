@@ -227,6 +227,13 @@
   box-shadow: 0 16px 34px color-mix(in srgb, var(--forest) 32%, transparent) !important;
 }
 
+.createMeetingHint {
+  margin: .65rem 0 0;
+  color: var(--ink-soft);
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
 .joinMeetingHeading {
   display: flex;
   align-items: center;

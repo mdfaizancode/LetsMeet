@@ -11,6 +11,7 @@ import MicOffIcon from '@mui/icons-material/MicOff'
 import ScreenShareIcon from '@mui/icons-material/ScreenShare';
 import StopScreenShareIcon from '@mui/icons-material/StopScreenShare'
 import ChatIcon from '@mui/icons-material/Chat'
+import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import server from '../environment';
 import { useNavigate } from 'react-router-dom';
 
@@ -55,11 +56,22 @@ export default function VideoMeetComponent() {
     let [askForUsername, setAskForUsername] = useState(true);
 
     let [username, setUsername] = useState("");
+    let [codeCopied, setCodeCopied] = useState(false);
 
     const videoRef = useRef([])
 
     let [videos, setVideos] = useState([])
     const navigate = useNavigate();
+    const meetingCode = decodeURIComponent(window.location.pathname.slice(1));
+
+    const copyMeetingCode = async () => {
+        try {
+            await navigator.clipboard.writeText(meetingCode);
+            setCodeCopied(true);
+        } catch {
+            setCodeCopied(false);
+        }
+    };
 
     useEffect(() => () => {
         socketRef.current?.disconnect();
@@ -461,6 +473,24 @@ export default function VideoMeetComponent() {
                             <span className={styles.eyebrow}>READY WHEN YOU ARE</span>
                             <h1>Join your meeting</h1>
                             <p>Choose the name other participants will see.</p>
+                            <div className={styles.meetingCodePanel}>
+                                <div>
+                                    <span className={styles.meetingCodeLabel}>MEETING CODE</span>
+                                    <code aria-label="Meeting code">{meetingCode}</code>
+                                </div>
+                                <Button
+                                    className={styles.copyMeetingCodeButton}
+                                    variant="outlined"
+                                    startIcon={<ContentCopyRoundedIcon />}
+                                    onClick={copyMeetingCode}
+                                    aria-label="Copy meeting code"
+                                >
+                                    {codeCopied ? "Copied" : "Copy code"}
+                                </Button>
+                            </div>
+                            <p className={styles.meetingCodeHint} role="status">
+                                {codeCopied ? "Meeting code copied. Share it with others to invite them." : "Share this code so others can join your meeting."}
+                            </p>
                             {mediaError && <p className={styles.mediaError} role="status">{mediaError}</p>}
                             <Button
                                 className={styles.mediaAccessButton}
